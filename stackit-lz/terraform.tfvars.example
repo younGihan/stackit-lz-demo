@@ -1,0 +1,9 @@
+workspace_name                          = "my-workspace"
+project_name                            = "my-project"
+project_display_name                    = "My Project"
+payment_method_identifier               = "my-payment-method"
+platform_identifier                     = "my-platform.global"
+landing_zone_identifier                 = "my-landing-zone"
+building_block_definition_display_name  = "Example Building Block"
+building_block_display_name             = "dummy-building-block"
+building_block_inputs                   = {}
