@@ -1,5 +1,5 @@
 variable "organization_id" {
-  description = "STACKIT organization ID that the network area and project belong to."
+  description = "STACKIT organization ID that the existing network area and the project belong to."
   type        = string
 }
 
@@ -9,7 +9,7 @@ variable "parent_container_id" {
 }
 
 variable "region" {
-  description = "STACKIT region used for the network area region config and all networks."
+  description = "STACKIT region used for all networks."
   type        = string
   default     = "eu01"
 }
@@ -25,60 +25,18 @@ variable "owner_email" {
 }
 
 variable "project_labels" {
-  description = "Additional labels to attach to the project. The 'networkArea' label is set automatically to bind the project to the created network area."
+  description = "Additional labels to attach to the project. The 'networkArea' label is set automatically to bind the project to the existing network area."
   type        = map(string)
   default     = {}
 }
 
-variable "network_area_name" {
-  description = "Name of the STACKIT Network Area (SNA) that the project is assigned to."
+variable "network_area_id" {
+  description = "ID of the existing STACKIT Network Area (SNA) that the project is assigned to. This building block does not create a network area - it must already exist, along with its regional IPv4 config (transfer network, reserved ranges), and each VPC's ipv4_prefix must fall within one of its reserved ranges."
   type        = string
-}
-
-variable "network_area_labels" {
-  description = "Additional labels to attach to the network area."
-  type        = map(string)
-  default     = {}
-}
-
-variable "transfer_network" {
-  description = "IPv4 CIDR used as the transfer network for the network area region."
-  type        = string
-  default     = "192.168.0.0/24"
-}
-
-variable "network_area_ranges" {
-  description = "List of IPv4 CIDR prefixes reserved for the network area. VPC subnets must fall within these ranges."
-  type        = list(string)
-  default     = ["10.0.0.0/16"]
-}
-
-variable "default_nameservers" {
-  description = "Default IPv4 nameservers for networks created in this network area."
-  type        = list(string)
-  default     = ["8.8.8.8", "9.9.9.9"]
-}
-
-variable "default_prefix_length" {
-  description = "Default IPv4 prefix length for networks created in this network area."
-  type        = number
-  default     = 25
-}
-
-variable "min_prefix_length" {
-  description = "Minimum allowed IPv4 prefix length for networks in this network area."
-  type        = number
-  default     = 24
-}
-
-variable "max_prefix_length" {
-  description = "Maximum allowed IPv4 prefix length for networks in this network area."
-  type        = number
-  default     = 29
 }
 
 variable "vpcs" {
-  description = "Map of VPCs (STACKIT networks) to create in the project, keyed by network name, each with its own subnet CIDR. Every ipv4_prefix must fall within network_area_ranges."
+  description = "Map of VPCs (STACKIT networks) to create in the project, keyed by network name, each with its own subnet CIDR. Every ipv4_prefix must fall within one of the existing network area's reserved ranges."
   type = map(object({
     ipv4_prefix      = string
     dhcp             = optional(bool, true)

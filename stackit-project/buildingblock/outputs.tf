@@ -9,8 +9,8 @@ output "container_id" {
 }
 
 output "network_area_id" {
-  description = "ID of the created STACKIT Network Area (SNA)."
-  value       = stackit_network_area.this.network_area_id
+  description = "ID of the existing STACKIT Network Area (SNA) the project is assigned to."
+  value       = data.stackit_network_area.existing.network_area_id
 }
 
 output "vpcs" {

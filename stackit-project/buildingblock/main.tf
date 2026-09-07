@@ -1,31 +1,13 @@
-# STACKIT Network Area (SNA) - organization-level network area that the
-# project is assigned to via the "networkArea" label on the project.
-resource "stackit_network_area" "this" {
+# Existing STACKIT Network Area (SNA) that the project is assigned to. This
+# building block does not create a network area - it must already exist and
+# have its regional IPv4 config (transfer network, reserved ranges, ...)
+# already set up via stackit_network_area_region.
+data "stackit_network_area" "existing" {
   organization_id = var.organization_id
-  name            = var.network_area_name
-  labels          = var.network_area_labels
+  network_area_id = var.network_area_id
 }
 
-# Regional IPv4 configuration (transfer network, reserved ranges, nameservers,
-# prefix length bounds) for the network area.
-resource "stackit_network_area_region" "this" {
-  organization_id = var.organization_id
-  network_area_id = stackit_network_area.this.network_area_id
-  region          = var.region
-
-  ipv4 = {
-    transfer_network = var.transfer_network
-    network_ranges = [
-      for prefix in var.network_area_ranges : { prefix = prefix }
-    ]
-    default_nameservers   = var.default_nameservers
-    default_prefix_length = var.default_prefix_length
-    min_prefix_length     = var.min_prefix_length
-    max_prefix_length     = var.max_prefix_length
-  }
-}
-
-# STACKIT project, assigned to the network area above.
+# STACKIT project, assigned to the existing network area above.
 # Setting the "networkArea" label at creation time is how a project is bound
 # to a STACKIT Network Area - this cannot be changed afterwards.
 resource "stackit_resourcemanager_project" "this" {
@@ -34,10 +16,8 @@ resource "stackit_resourcemanager_project" "this" {
   owner_email         = var.owner_email
 
   labels = merge(var.project_labels, {
-    networkArea = stackit_network_area.this.network_area_id
+    networkArea = data.stackit_network_area.existing.network_area_id
   })
-
-  depends_on = [stackit_network_area_region.this]
 }
 
 # 4 VPCs (STACKIT networks), each with its own subnet CIDR.
@@ -53,6 +33,4 @@ resource "stackit_network" "vpc" {
   routed           = each.value.routed
   ipv4_nameservers = each.value.ipv4_nameservers
   labels           = each.value.labels
-
-  depends_on = [stackit_network_area_region.this]
 }
